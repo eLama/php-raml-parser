@@ -134,6 +134,10 @@ class LazyProxyType implements TypeInterface, ArrayInstantiationInterface
 
     public function validate($value)
     {
+        if (!(isset($this->definition['required']) && $this->definition['required'] && isset($value))) {
+            return;
+        }
+        
         $original = $this->getResolvedObject();
 
         if ($this->discriminate($value)) {
