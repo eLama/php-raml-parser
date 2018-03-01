@@ -21,17 +21,36 @@ class UnionType extends Type
     private $possibleTypes = [];
 
     /**
-    * Create a new UnionType from an array of data
-    *
-    * @param string    $name
-    * @param array     $data
-    *
-    * @return UnionType
-    */
+     * Create a new UnionType from an array of data
+     *
+     * @param string    $name
+     * @param array     $data
+     *
+     * @return UnionType
+     */
     public static function createFromArray($name, array $data = [])
     {
+        /**
+         * @var UnionType $type
+         */
         $type = parent::createFromArray($name, $data);
-        $type->setPossibleTypes(explode('|', $type->getType()));
+
+        $unionTypes = array_map(
+            function ($type) {
+                return trim($type);
+            },
+            explode('|', $type->getType())
+        );
+
+        $types = array_combine(
+            $unionTypes,
+            array_map(function ($type) use ($data) {
+                $data['type'] = $type;
+                return $data;
+            }, $unionTypes)
+        );
+
+        $type->setPossibleTypes($types);
         $type->setType('union');
 
         return $type;
@@ -56,8 +75,8 @@ class UnionType extends Type
      */
     public function setPossibleTypes(array $possibleTypes)
     {
-        foreach ($possibleTypes as $type) {
-            $this->possibleTypes[] = ApiDefinition::determineType(trim($type), ['type' => trim($type)]);
+        foreach ($possibleTypes as $type => $typeData) {
+            $this->possibleTypes[] = ApiDefinition::determineType($type, $typeData);
         }
 
         return $this;
