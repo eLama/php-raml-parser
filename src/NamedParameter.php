@@ -642,7 +642,7 @@ class NamedParameter implements ArrayInstantiationInterface
                 }
                 break;
             case self::TYPE_INTEGER:
-                if (!is_integer($default)) {
+                if (!is_numeric($default) || (int)$default != $default) {
                     throw new \Exception('Default parameter is not an integer');
                 }
                 break;
