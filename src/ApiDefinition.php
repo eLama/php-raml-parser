@@ -630,7 +630,7 @@ class ApiDefinition implements ArrayInstantiationInterface
                 );
                 return forward_static_call_array([$className,'createFromArray'], [$name, $definition]);
             }
-            // if $type contains a '|' we can savely assume it's a combination of types (union)
+            // if $type contains a '|' we can safely assume it's a combination of types (union)
             if (strpos($type, '|') !== false) {
                 return UnionType::createFromArray($name, $definition);
             }
