@@ -245,7 +245,7 @@ class Parser
     /**
      * Parse RAML data
      *
-     * @param string $ramlData
+     * @param array $ramlData
      * @param string $rootDir
      *
      * @throws RamlParserException
@@ -257,6 +257,8 @@ class Parser
         if (!isset($ramlData['title'])) {
             throw new RamlParserException();
         }
+
+        $ramlData = $this->parseLibraries($ramlData, $rootDir);
 
         $ramlData = $this->parseTraits($ramlData);
 
@@ -439,6 +441,76 @@ class Parser
     }
 
     /**
+     * @param array $ramlData
+     * @param string $rootDir
+     * @return array
+     */
+    private function parseLibraries(array $ramlData, $rootDir)
+    {
+        if (isset($ramlData['uses'])) {
+            foreach ($ramlData['uses'] as $nameSpace => $import) {
+                $fileName = $import;
+                $dir = $rootDir;
+
+                if (filter_var($import, FILTER_VALIDATE_URL) !== false) {
+                    $fileName = basename($import);
+                    $dir = dirname($import);
+                }
+                $library = $this->loadAndParseFile($fileName, $dir);
+                $library = $this->parseLibraries($library, $dir . '/' . dirname($fileName));
+                foreach ($library as $key => $item) {
+                    if (
+                        in_array(
+                            $key,
+                            [
+                                'types',
+                                'traits',
+                                'annotationTypes',
+                                'securitySchemes',
+                                'resourceTypes',
+                                'schemas',
+                            ],
+                            true
+                        )) {
+                        foreach ($item as $itemName => $itemData) {
+                            $itemData = $this->addNamespacePrefix($nameSpace, $itemData);
+                            $ramlData[$key][$nameSpace . '.' . $itemName] = $itemData;
+                        }
+                    }
+                }
+            }
+        }
+        return $ramlData;
+    }
+
+    /**
+     * @param string $nameSpace
+     * @param array $definition
+     * @return array
+     */
+    private function addNamespacePrefix($nameSpace, array $definition)
+    {
+        foreach ($definition as $key => $item) {
+            if (in_array($key, ['type', 'is'])) {
+                if (is_array($item)) {
+                    foreach ($item as $itemKey => $itemValue) {
+                        if (!in_array($itemValue, ApiDefinition::getStraightForwardTypes(), true)) {
+                            $definition[$key][$itemKey] = $nameSpace . '.' . $itemValue;
+                        }
+                    }
+                } else {
+                    if (!in_array($item, ApiDefinition::getStraightForwardTypes(), true)) {
+                        $definition[$key] = $nameSpace . '.' . $item;
+                    }
+                }
+            } elseif (is_array($definition[$key])) {
+                $definition[$key] = $this->addNamespacePrefix($nameSpace, $definition[$key]);
+            }
+        }
+        return $definition;
+    }
+
+    /**
      * Parse the traits
      *
      * @param mixed $ramlData
@@ -533,11 +605,18 @@ class Parser
      */
     private function loadAndParseFile($fileName, $rootDir)
     {
-        $rootDir = realpath($rootDir);
-        $fullPath = realpath($rootDir . '/' . $fileName);
+        if (!$this->configuration->isRemoteFileInclusionEnabled()) {
+            $rootDir = realpath($rootDir);
+            $fullPath = realpath($rootDir . '/' . $fileName);
 
-        if (is_readable($fullPath) === false) {
-            throw new FileNotFoundException($fileName);
+            if (is_readable($fullPath) === false) {
+                throw new FileNotFoundException($fileName);
+            }
+        } else {
+            $fullPath = $rootDir . '/' . $fileName;
+            if (filter_var($fullPath, FILTER_VALIDATE_URL) === false && is_readable($fullPath) === false) {
+                throw new FileNotFoundException($fileName);
+            }
         }
 
         // Prevent LFI directory traversal attacks

@@ -582,6 +582,25 @@ class ApiDefinition implements ArrayInstantiationInterface
         $this->documentationList[$title] = $documentation;
     }
 
+    public static function getStraightForwardTypes()
+    {
+        return [
+            'time-only',
+            'datetime',
+            'datetime-only',
+            'date-only',
+            'number',
+            'integer',
+            'boolean',
+            'string',
+            'null',
+            'nil',
+            'file',
+            'array',
+            'object',
+        ];
+    }
+
     /**
      * Determines the right Type and returns an instance
      *
@@ -595,21 +614,6 @@ class ApiDefinition implements ArrayInstantiationInterface
     public static function determineType($name, $definition)
     {
         // check if we can find a more appropriate Type subclass
-        $straightForwardTypes = [
-            'time-only',
-            'datetime',
-            'datetime-only',
-            'date-only',
-            'number',
-            'integer',
-            'boolean',
-            'string',
-            'null',
-            'nil',
-            'file',
-            'array',
-            'object'
-        ];
         if (is_string($definition)) {
             $definition = ['type' => $definition];
         } elseif (is_array($definition)) {
@@ -623,7 +627,7 @@ class ApiDefinition implements ArrayInstantiationInterface
         $type = $definition['type'] ?: 'null';
 
         if (!in_array($type, ['','any'])) {
-            if (in_array($type, $straightForwardTypes)) {
+            if (in_array($type, static::getStraightForwardTypes())) {
                 $className = sprintf(
                     'Raml\Types\%sType',
                     StringTransformer::convertString($type, StringTransformer::UPPER_CAMEL_CASE)

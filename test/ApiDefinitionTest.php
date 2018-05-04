@@ -120,6 +120,26 @@ class ApiDefinitionTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function shouldParseLibraries()
+    {
+        $this->parser->configuration->allowRemoteFileInclusion();
+        $api = $this->parser->parse(__DIR__.'/fixture/raml-1.0/types.raml');
+        /** @var \Raml\Types\ObjectType $fileType */
+        $fileType = $api->getTypes()->getTypeByName('Library.File');
+        /** @var \Raml\Types\ObjectType $folderType */
+        $folderType = $api->getTypes()->getTypeByName('Library.Folder');
+
+        $this->assertNotNull($fileType);
+        $this->assertNotNull($folderType);
+
+        /** @var \Raml\Types\ArrayType $property */
+        $property = $folderType->getPropertyByName('files');
+        $this->assertSame($fileType, $property->getItems());
+
+        $this->parser->configuration->forbidRemoteFileInclusion();
+    }
+
+    /** @test */
     public function shouldParseTypesToSubTypes()
     {
         $api = $this->parser->parse(__DIR__.'/fixture/raml-1.0/types.raml');
