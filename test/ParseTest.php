@@ -643,7 +643,7 @@ RAML;
         } catch (\Raml\Exception\InvalidQueryParameterTypeException $e) {
             $this->assertEquals('invalid', $e->getType());
             $this->assertEquals([
-                'string', 'number', 'integer', 'date', 'boolean', 'file'
+                'string', 'number', 'integer', 'date', 'boolean', 'file', 'array'
             ], $e->getValidTypes());
             throw $e;
         }
