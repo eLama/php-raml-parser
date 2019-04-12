@@ -1,7 +1,5 @@
 # PHP RAML Parser
 
-## **!!Attention!!** this is a work-in-progress of the RAML 1.0 specification, for RAML 0.8 see the [master branch](https://github.com/alecsammon/php-raml-parser/tree/master)
-
 ### What is done and should work
   - Part of RAML 1.0 [type expressions](https://github.com/raml-org/raml-spec/blob/master/versions/raml-10/raml-10.md/#type-expressions)
   - Enums
