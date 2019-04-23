@@ -114,6 +114,7 @@ class RequestValidator
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
         $contentType = $request->getHeaderLine('Content-Type');
+        $contentType = explode(';', $contentType)[0];
 
         $schemaBody = $this->schemaHelper->getRequestBody($method, $path, $contentType);
 

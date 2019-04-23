@@ -113,6 +113,7 @@ class ResponseValidator
         $path = $request->getUri()->getPath();
         $statusCode = $response->getStatusCode();
         $contentType = $response->getHeaderLine('Content-Type');
+        $contentType = explode(';', $contentType)[0];
 
         $schemaBody = $this->schemaHelper->getResponseBody($method, $path, $statusCode, $contentType);
 
