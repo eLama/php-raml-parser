@@ -6,6 +6,7 @@ use Exception;
 use Negotiation\Negotiator;
 use Psr\Http\Message\RequestInterface;
 use Raml\Exception\ValidationException;
+use Raml\Method;
 use Raml\NamedParameter;
 use Raml\Types\TypeValidationError;
 
@@ -44,6 +45,22 @@ class RequestValidator
         if (!in_array(strtolower($request->getMethod()), ['get', 'delete'], true)) {
             $this->assertValidBody($request);
         }
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @return Method
+     */
+    public function getMethod(RequestInterface $request)
+    {
+        $method = $request->getMethod();
+        $path = $request->getUri()->getPath();
+
+        return $this->schemaHelper->getMethodSkipValidation(
+            $method,
+            $path
+        );
+
     }
 
     /**

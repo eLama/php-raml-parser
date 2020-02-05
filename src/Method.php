@@ -97,6 +97,8 @@ class Method implements ArrayInstantiationInterface, MessageSchemaInterface
      */
     private $traits = [];
 
+    private $skipValidation = false;
+
     // ---
 
     /**
@@ -156,6 +158,9 @@ class Method implements ArrayInstantiationInterface, MessageSchemaInterface
 
         if (isset($data['description'])) {
             $method->setDescription($data['description']);
+            if (strpos($data['description'], '#skipValidation') >= 0) {
+                $method->skipValidation = true;
+            }
         }
 
         if (isset($data['baseUriParameters'])) {
@@ -528,5 +533,10 @@ class Method implements ArrayInstantiationInterface, MessageSchemaInterface
         $this->traits[] = $trait;
 
         return $this;
+    }
+
+    public function getSkipValidation()
+    {
+        return $this->skipValidation;
     }
 }

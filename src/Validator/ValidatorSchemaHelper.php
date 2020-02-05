@@ -62,6 +62,18 @@ class ValidatorSchemaHelper
     /**
      * @param string $method
      * @param string $path
+     * @return bool
+     */
+    public function getMethodSkipValidation($method, $path)
+    {
+        $method = $this->getMethod($method, $path);
+
+        return $method->getSkipValidation();
+    }
+
+    /**
+     * @param string $method
+     * @param string $path
      * @param string $contentType
      * @return Body
      */
