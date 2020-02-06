@@ -49,9 +49,9 @@ class RequestValidator
 
     /**
      * @param RequestInterface $request
-     * @return Method
+     * @return bool
      */
-    public function getMethod(RequestInterface $request)
+    public function getMethodSkipValidation(RequestInterface $request)
     {
         $method = $request->getMethod();
         $path = $request->getUri()->getPath();
