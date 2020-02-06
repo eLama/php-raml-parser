@@ -158,7 +158,7 @@ class Method implements ArrayInstantiationInterface, MessageSchemaInterface
 
         if (isset($data['description'])) {
             $method->setDescription($data['description']);
-            if (strpos($data['description'], '#skipValidation') >= 0) {
+            if (strpos($data['description'], '#skipValidation') !== false) {
                 $method->skipValidation = true;
             }
         }
